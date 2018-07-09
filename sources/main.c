@@ -19,6 +19,10 @@ char *strParse(char *str);
 int main(int argc, char *argv[]){
 	// Arvore de Localidades
 	AVL *localidades = NULL;
+
+	// LDC - lista de consultas mais realizadas no arquivo
+	LDC *consultas_arquivo = NULL;
+
 	// Nome dos arquivos de entrada/saida
 	char *entrada, *operacoes, *saida;
 	// Ponteiro para arquivos
@@ -104,6 +108,9 @@ int main(int argc, char *argv[]){
 			// Salva essa nova consulta na localidade atual
 			localAtual->consultas = insertFirstLDC(localAtual->consultas, "", 1, consultaAtual);
 
+			// Salva a nova consulta na lista de consultas geral do arquivo
+			consultas_arquivo = insertFirstLDC(consultas_arquivo, "", 1, consultaAtual);
+
 			// *DEBUGG*
 			// LDC *aux = localAtual->consultas;
 			// do{
@@ -132,21 +139,24 @@ int main(int argc, char *argv[]){
 		parameter1 = strtok(NULL, ";");
 		parameter2 = strtok(NULL, ";");
 
+		printf("%s - %s - %s\n", strFunction, parameter1, parameter2);
+
 		if(!(parameter1 == NULL && parameter2 == NULL)){
+            printf("Executing operation '%c'\n", toupper(strFunction[0]));
+
 			// Simplificamos os parametros
 			strParse(parameter1);
 			strParse(parameter2);
 
-			printf("Executing operation '%c'\n", toupper(strFunction[0]));
-
 			// Verificamos qual operação é e a executamos
 			switch(tolower(strFunction[0])){
 				case 'a':
-				operacaoA(localidades,file_saida,parameter1,atoi(parameter2));
+					operacaoA(localidades,file_saida,parameter1,atoi(parameter2));
 				break;
-				// case 'b':
-				// 	operacaoB();
-				// 	break;
+				case 'b':
+					printf("B[%d, %s]\n", atoi(parameter1), parameter2);
+					operacaoB(consultas_arquivo, file_saida, atoi(parameter1));
+				 	break;
 				// case 'c':
 				// 	operacaoC();
 				// 	break;
@@ -178,17 +188,22 @@ int main(int argc, char *argv[]){
 // all the characters to lower case
 // if end the string with lineFeed, removes the lineFeed
 char *strParse(char *str){
+    if (str == NULL)
+        return str;
+
 	int len = strlen(str);
 	int i;
 	for(i=0; i<len; i++){
-		//printf("\n[%d]: %c->",i, str[i]);
+		//printf("\n[%d]: %d->%c",i, str[i], str[i]);
 
 		str[i] = tolower(str[i]);
-
 		switch(str[i]){
 			case 10: // 10 = \n = Line Feed
 				str[i] = 0;
 				break;
+            case 13: // CR
+                str[i] = 0;
+                break;
 			case -61:  // acentuação
 				// case 'Á': 2 chars: [-61] e [-127]
 				if(str[i+1] == -127){
@@ -208,6 +223,7 @@ char *strParse(char *str){
 				}
 				break;
 		}
+
 		//printf("%1c[%d]\n",str[i],str[i]);
 	}
 	return str;

@@ -49,13 +49,16 @@ void operacaoA (AVL* localidades, FILE* saida, char nome[], int TExpected){
 
         do{
             fprintf(saida, "%d ", actual->frequencia);
-            aux = actual->termos;
-            do{
-                fprintf(saida, "%s;", aux->chave);
+            LDC *aux = actual->termos;
+            
+            fprintf(saida, "%s", aux->chave);
+            aux = aux->next;
+    
+            while(aux != actual->termos){
+                fprintf(saida, ";%s", aux->chave);
                 aux = aux->next;
-            }while(aux != actual->termos->prev);
-            if(aux != aux->next)
-                fprintf(saida, "%s\n", aux->chave);
+            }
+            fprintf(saida, "\n");
             actual = actual->next;
         }while(actual != localAtual->consultas && --TExpected != 0);
 
@@ -69,9 +72,41 @@ void operacaoA (AVL* localidades, FILE* saida, char nome[], int TExpected){
 // for zero, todas as consultas devem ser listadas. A saída da função é o número que representa a
 // quantidade de ocorrências e a respectiva consulta. Restrições: (i) listar um resultado por linha; (ii)
 // consultas com a mesma frequência devem ser listadas em ordem alfabética.
-// int operacaoB (AVL* localidades, int TExpected){
+void operacaoB (LDC *consultas, FILE *saida, int TExpected){
+    printf("Removendo redundancia\n");
+    consultas = remove_redundancia(consultas);
+    consultas = sortFreqLDC(consultas);
+    consultas = sortSubLDC(consultas);
 
-//}
+    printf("Consultas: \n");
+    LDC *aux = consultas;
+    do {
+        printf("[%d]: ", aux->frequencia);
+        show_all(aux->termos);
+        aux = aux->next;
+        printf("\n");
+    } while(aux != consultas);
+
+    LDC *actual = consultas;
+    printf("Tenta armazenar as consultas no arquivo de saida\n");
+
+    do{
+        fprintf(saida, "%d ", actual->frequencia);
+        LDC *aux = actual->termos;
+
+        fprintf(saida, "%s", aux->chave);
+        aux = aux->next;
+
+        while(aux != actual->termos){
+            fprintf(saida, ";%s", aux->chave);
+            aux = aux->next;
+        }
+        fprintf(saida, "\n");
+        actual = actual->next;
+    }while(actual != consultas && --TExpected != 0);
+
+    printf("Dados armazenados com sucesso!\n\n");
+}
 
 
 // OPERAÇÃO c. Listar os termos mais consultados por localidade. A operação recebe como entrada

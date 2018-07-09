@@ -31,6 +31,18 @@ LDC* sortFreqLDC(LDC* list);
 // Função que ordena uma LDC de Termos por ordem alfabética
 LDC* sortAlfLDC(LDC* list);
 
+// Ordena as consultas de mesma frequencia pela ordem alfabetica de seus termos
+LDC *sortSubLDC(LDC* list);
+
+// Compara a primeira lista circular com a segunda:
+// Se forem iguais, retorna 0
+// Se a primeira for menor, retorna -1
+// Se a primeira for maior, retorna +1
+int ldc_cmp(LDC *nodeA, LDC *nodeB);
+
+// Percorre a LDC, aglutinando consultas iguais e aumentando a frequencia.
+LDC* remove_redundancia(LDC *list);
+
 // Função que procura um termo na lista
 LDC* searchLDC(LDC* list, char chave[]);
 

@@ -1,1 +1,3 @@
 a;Rio de Janeiro;3
+a;Salvador;3
+b;6
