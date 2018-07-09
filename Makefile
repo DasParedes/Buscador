@@ -9,7 +9,7 @@ C_SOURCE=$(wildcard sources/*.c)
 	# sources/abp.c sources/main.c
 
 # .h files
-H_SOURCE=$(wildcard headers/*.h) 
+H_SOURCE=$(wildcard headers/*.h)
 	# headers/abp.h
 
 # Object files
@@ -39,14 +39,14 @@ $(PROJ_NAME): $(OBJ)
 	$(CC) -o $@ $^
 	@ echo '    Finished Building binary: $@'
 
-./objects/%.o: ./sources/%.c ./headers/%.h 
+./objects/%.o: ./sources/%.c ./headers/%.h
 	@ echo '    compiling: $(subst objects/,,$@)'
-	$(CC) $(CFLAGS) $< -o $@ 
+	$(CC) $(CFLAGS) $< -o $@
 
 ./objects/main.o: ./sources/main.c $(H_SOURCE)
 	@ echo ''
 	@ echo '    compiling main.o'
-	$(CC) $(CFLAGS) $< -o $@ 
+	$(CC) $(CFLAGS) $< -o $@
 
 ./objects/teste.o: ./sources/teste.c
 	@ echo 'compilando $@'

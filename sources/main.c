@@ -1,231 +1,190 @@
+// Bibliotecas Globais
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
 #include <sys/time.h>
 
-#include "../headers/main.h"
+// Bibliotecas Locais
+#include "../headers/AVL.h"
+#include "../headers/LDC.h"
+#include "../headers/operations.h"
 
-#ifndef ABP_H 
-#include "../headers/abp.h"
-#endif
+// Constantes
+#define BUFFER_SIZE 512
 
-#ifndef LDE_H
-#include "../headers/lde.h"
-#endif
+// Funções Auxiliares
+char *strParse(char *str);
 
-#ifndef TIPOCONSULTA_H
-#include "../headers/tipoconsulta.h"
-#endif
-
-#ifndef DEBUG_MESSAGES
-#define DEBUG_MESSAGES
-
-#define DEBUG(msg) printf("DEBUG: %s\n", msg);
-#define ERROR(msg) printf("ERROR: %s\n", msg);
-#define WARN(msg) printf("WARNING: %s\n", msg);
-#endif
-
-char *parse_string(char *str);
-
-int main(int args, char *argc[]){
-	struct timeval t_inicio, t_fim_insert, t_fim_programa;
-	gettimeofday(&t_inicio, NULL);
-
+int main(int argc, char *argv[]){
+	// Arvore de Localidades
+	AVL *localidades = NULL;
+	// Nome dos arquivos de entrada/saida
 	char *entrada, *operacoes, *saida;
-	FILE *file_entrada, *file_operacoes;
-	int buffer_size = 255;
-	char buffer[buffer_size];
+	// Ponteiro para arquivos
+	FILE *file_entrada, *file_operacoes, *file_saida;
+	char buffer[BUFFER_SIZE];
 
-	// Estruturas
-	// Guarda os locais onde foram feitas as consultas
-	abp_node *abp_locais = NULL;
-	lde_descritor *des_lde_cidades = inicializa_lde_descritor();
-
-	// guarda as consultas que foram realizadas
-	// guarda os termos que foram procurados
-	abp_node *abp_termos = NULL;
-	//LDE_Node *lista_termos = inicializa_LDE_Node();
-	lde_descritor *des_lde_termos = inicializa_lde_descritor();
-	
-	abp_node *abp_consultas = NULL; // consultas em todo o arquivo
-	//lde_descritor *des_lde_consultas = inicializa_lde_descritor(); // consultas em todo o arquivo
-
-	if(args < 3){
-		ERROR("Does not have the right number of parameters\n");
-		return 1;
+	// Verifica se os parametros foram informados corretamente
+	if(argc < 4){
+		printf("Does not have the right number of parameters\n");
+		return -1;
 	}
 
-	entrada = argc[1];
-	operacoes = argc[2];
-	saida = argc[3];
+	// Armazena o nome dos arquios de entrada/saida
+	entrada = argv[1];
+	operacoes = argv[2];
+	saida = argv[3];
 
 	printf("Nome do arquivo de entrada: %s\n", entrada);
 	printf("Nome do arquivo de operações: %s\n", operacoes);
 	printf("Nome do arquivo de saida: %s\n", saida);
-	
-	// Open the files
+
+	// Abre os arquivos de entrada/saida
 	file_entrada = fopen(entrada, "r");
 	file_operacoes = fopen(operacoes, "r");
+	file_saida = fopen(saida, "w");
 
-	// Verifing if the files exist
+	// Verifica a existencia dos arquivos
 	if(!file_entrada){
-		ERROR("The file of input does not exists\n");
+		printf("ERROR: The file of input does not exists\n");
 		fclose(file_entrada);
-		return 1;
-	} else
-	if (!file_operacoes){
-		ERROR("The file of operations does not exists");
+		return -2;
+	}
+	else if(!file_operacoes){
+		printf("ERROR: The file of operations does not exists");
 		fclose(file_operacoes);
-		return 1;
+		return -3;
 	}
-	
-	// reading the lines of the file of input
+	else if(!file_operacoes){
+		printf("ERROR: The file of output does not be created");
+		fclose(file_saida);
+		return -4;
+	}
+
 	printf("\nReading for file of input:\n");
-	
-	int i=0, MAX = 10;
-	while(!feof(file_entrada) && i++ < MAX){
-		TipoConsulta *nodo_consulta = inicializa_nodo_consulta();
-		LDE_Node *termos = inicializa_LDE_Node();
-			
-		nodo_consulta->termos = termos;
 
-		fgets(buffer, buffer_size, file_entrada);
+	// Le todas as consultas do arquivo de entrada
+	while(!feof(file_entrada)){
+		char *strLocal = NULL;		// Nome da localidade
+		char *strTermo = NULL;  	// Nome do Termo atual
+		int isBalanced;	        	// Auxiliar para Inserção da AVL
+		AVL *localAtual = NULL;		// Ponteiro para o nodo do local atual na AVL
+		LDC *consultaAtual = NULL;	// Ponteiro para a consulta atual da localidade
 
-		// setting the strtok to get the locality and the terms between the tokens ";"
-		char *locality = strtok(buffer, ";");
-		char *token = strtok(NULL, ";");
+		// Lemos uma linha do arquivo
+		fgets(buffer, BUFFER_SIZE, file_entrada);
 
-		printf("Parsing string\n");
-		parse_string(locality);
-		printf("Procurando na abp\n");
-		// tenta inserir, contando quando tenta inserir o mesmo nodo e devolve o nodo inserido
-		abp_node *abp_localidade = inserir_abp_node(&abp_locais, locality);
-		if(abp_localidade->lde_cidade == NULL){
-			LDE_Node *lde_cidade = insere_info_lde_inicio(des_lde_cidades, abp_localidade->chave);
-			// arrumar, transformar em ponteiros;
-			// facilita pra achar a cidade pelo nome ou as cidade mais ou menos pesquisadas
-			abp_localidade->lde_cidade = lde_cidade;
+		// Lemos o nome da localidade e o primeiro termo
+		strLocal = strtok(buffer, ";");
+		strTermo = strtok(NULL, ";");
+
+		if(strTermo != NULL){
+			// Simplificamos o nome da localidade
+			printf("Parsing string\n");
+			strParse(strLocal);
+
+			printf("Adicionando local '%s' a AVL\n", strLocal);
+			// Insere uma nova localidade na Arvore de locais
+			localidades = insertAVL(localidades, strLocal, &isBalanced);
+			// Busca o ponteiro inserido na Arvore
+			localAtual = searchAVL(localidades, strLocal);
+
+			// Enquanto não houver mais termos a serem lidos
+			while(strTermo != NULL){
+				// Simplifica o termo atual
+				strParse(strTermo);
+				// Adiciona o termos numa Lista de Termos auxiliar
+				consultaAtual = insertFirstLDC(consultaAtual, strTermo, 1, NULL);
+				// Le outro termo
+				strTermo = strtok(NULL, ";");
+			}
+			// Ordena essa Lista por Ordem ALfabetica para facilitar as operações
+			consultaAtual = sortAlfLDC(consultaAtual);
+			// Salva essa nova consulta na localidade atual
+			localAtual->consultas = insertFirstLDC(localAtual->consultas, "", 1, consultaAtual);
+
+			// *DEBUGG*
+			// LDC *aux = localAtual->consultas;
+			// do{
+			// 	show_all(aux->termos);
+			// 	printf(" %d\n", aux->frequencia);
+			// 	aux = aux->next;
+			// }while(aux != localAtual->consultas);
+			//
+			// printf("\n");
+			// printDotsReallyRB(localidades, 0);
+			// printf("\n");
 		}
-		else {
-			// atualiza a frequencia da cidade atual
-			abp_localidade->lde_cidade->frequencia = abp_localidade->frequencia;
-			// ordenar cidade mais pesquisadas
-		}
-		
-		//abp_cidade->node = nodo_consulta->termos;
-		printf("ABP pronta\n");
-
-		while( token != NULL ){
-			parse_string(token);
-
-			printf("\t\tLDE - Inserindo na consulta\n");
-			insere_info_LDE_Node_alf(&termos, token);
-
-			printf("\tABP - Inserindo na abp_termos\n");
-			abp_node *termo = inserir_abp_node(&abp_termos, token);
-			if(termo->node == NULL) printf("Novo termo inserido a lista\n");
-			else printf("termo: chave: %s\n", termo->chave);
-
-			printf("\tLDE - Inserindo na lista de termos do arquivo\n");
-			// ordem alfabetica
-			//LDE_Node *lde_atual = insere_info_LDE_Node_alf(&lista_termos, token);
-
-			// ordem de frequencia
-			LDE_Node *lde_atual = insere_termo_lde(des_lde_termos, termo->node, token);			
-			termo->node = lde_atual;
-			printf("nodo inserido: %s\n", termo->node->info);
-
-			token = strtok(NULL, ";");
-		}
-
-		printf("%s: termos: ", abp_localidade->chave);
-		imprime_lde_linha(termos);
-		printf("lista_termos: ");
-		
-		// insere consulta(lde de termos) na abp de consultas do arquivo
-		printf("\nInserindo consulta na abp\n");
-		abp_node *abp_novo_node = abp_insere_consulta2(&abp_consultas, termos);
-		if(abp_novo_node->consultas == NULL) printf("node vazio");
-		/*
-		printf("Inserindo consulta na lde\n");
-		LDE_Node *lde_atual = insere_consulta_lde(des_lde_consultas, abp_novo_node->consultas, termos);
-		abp_novo_node->consultas = lde_atual;
-		*/
-
-		printf("Consulta inserida: \n");
-		imprime_lde_consultas(abp_novo_node->consultas);
-		printf("Lista geral: ");
-		imprime_lde_linha(des_lde_termos->inicio);
-		printf("\n\n");
-
 	}
 
-	gettimeofday(&t_fim_insert, NULL);
+	printf("\nReading for file of operations:\n");
 
-	printf("\nlista_termos do arquivo: \n");
-	imprime_lde(des_lde_termos->inicio);
+	while(!feof(file_operacoes)){
+		char *strFunction;
+		char *parameter1, *parameter2;
 
-	printf("\nLista_termos inverso: \n");
-	printf("Termos mais procurados no arquivo\n");
-	imprime_inverso_lde(des_lde_termos->fim);
+		// Lemos uma linha do arquivo
+		fgets(buffer, BUFFER_SIZE, file_operacoes);
 
-	printf("\nabp_termos: \n");
-	imprime_abp(abp_termos, 0);
+		// Lemos o a operação e os parametros
+		strFunction = strtok(buffer, ";");
+		parameter1 = strtok(NULL, ";");
+		parameter2 = strtok(NULL, ";");
 
-	printf("\nabp de consultas do arquivo\n");
-	imprime_abp_consulta(abp_consultas, 0);
+		if(!(parameter1 == NULL && parameter2 == NULL)){
+			// Simplificamos os parametros
+			strParse(parameter1);
+			strParse(parameter2);
 
-	// Testando a procura na abp pelo termo
-	printf("\nProcurando e imprimindo lista a partir do termo '%s'\n", "avl");
-	abp_node *procura_termo = abp_procurar_chave(abp_termos, "avl");
-	if(procura_termo != NULL)
-		imprime_lde(procura_termo->node);
+			printf("Executing operation '%c'\n", toupper(strFunction[0]));
 
-	//printf("Imprime inverso:\n");
-	//imprime_inverso_lde(lista_termos);
-	//LDE_Node *consulta = consultas[0];
-	//printf("consulta[0]: %s\n", consulta->info);
-	printf("\nLocais:\n");
-	imprime_abp(abp_locais, 0);
+			// Verificamos qual operação é e a executamos
+			switch(tolower(strFunction[0])){
+				case 'a':
+				operacaoA(localidades,file_saida,parameter1,atoi(parameter2));
+				break;
+				// case 'b':
+				// 	operacaoB();
+				// 	break;
+				// case 'c':
+				// 	operacaoC();
+				// 	break;
+				// case 'd':
+				// 	operacaoD();
+				// 	break;
+				// case 'e':
+				// 	operacaoE();
+				// 	break;
+				// case 'f':
+				// 	operacaoF();
+				// 	break;
+				default:
+				printf("Arquivo mal-formatado!");
+				return -5;
+			}
+		}
+	}
 
-	printf("\nLocais por ordem de acesso crescente\n");
-	imprime_lde(des_lde_cidades->inicio);
-	printf("Fim: %s", des_lde_cidades->fim->info);
-
-	printf("\nTestando procura abp cidade procurando '%s'\n", "salvador");
-	abp_node *retorno_procurar = abp_procurar_chave(abp_locais, "salvador");
-	if(retorno_procurar != NULL)
-		printf("Chave retorno: %s\n", retorno_procurar->chave);
-
-	printf("\nProcurando termo '%s': \n", "russia");
-	abp_node *retorno_termo = abp_procurar_chave(abp_termos, "russia");
-	if(retorno_termo != NULL)
-		printf("chave %s [%d]\n", retorno_termo->chave, retorno_termo->frequencia);
-
-	// closing the files
-	fclose(file_operacoes);
+	// Fechamos os arquivos
 	fclose(file_entrada);
+	fclose(file_operacoes);
+	fclose(file_saida);
 
-	gettimeofday(&t_fim_programa, NULL);
-	//printf("tempos: %d - %d - %d", t_inicio, t_fim_insert, t_fim_programa);
-	//printf("Tempo de insercao: %ds\n", t_fim_insert - t_inicio);
-	//printf("tempo de operacao: %ds\n", t_fim_programa - t_fim_insert);
 	return 0;
 }
-
-
 
 // parsing the string receives,
 // all the characters to lower case
 // if end the string with lineFeed, removes the lineFeed
-char *parse_string(char *str){
+char *strParse(char *str){
 	int len = strlen(str);
 	int i;
 	for(i=0; i<len; i++){
 		//printf("\n[%d]: %c->",i, str[i]);
-		
+
 		str[i] = tolower(str[i]);
+
 		switch(str[i]){
 			case 10: // 10 = \n = Line Feed
 				str[i] = 0;
@@ -233,15 +192,18 @@ char *parse_string(char *str){
 			case -61:  // acentuação
 				// case 'Á': 2 chars: [-61] e [-127]
 				if(str[i+1] == -127){
-					// replaces the first character
 					str[i] = 'a';
 					// shift the rest of the string 1 pra esquerda
 					strncpy( (char*)(str+i+1),(char*)(str+i+2), len-i);
 				} else // case 'ã': 2 chars [-61] e [-93]
 				if(str[i+1] == -93){
-					// replaces the first character
-					str[i] = 'a';
 					// shift the rest of the string 1 pra esquerda
+					str[i] = 'a';
+					strncpy( (char*)(str+i+1),(char*)(str+i+2), len-i);
+				} else // case 'é': 2 chars [-61] e [-93]
+				if(str[i+1] == -87){
+					// shift the rest of the string 1 pra esquerda
+					str[i] = 'e';
 					strncpy( (char*)(str+i+1),(char*)(str+i+2), len-i);
 				}
 				break;
