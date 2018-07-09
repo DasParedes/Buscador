@@ -115,7 +115,26 @@ void operacaoB (LDC *consultas, FILE *saida, int TExpected){
 // representa a quantidade de ocorrências e o respectivo termo. Restrições: (i) listar um resultado por
 // linha; (ii) se a localidade não existir, exibir essa informação; (iii) termos com a mesma frequência
 // devem ser listados em ordem alfabética.
+void operacaoC (AVL *localidades, FILE *saida, char *local, int TExpected){
+    AVL *localAtual = searchAVL(localidades, local);
+    if(localAtual == NULL){
+        fprintf(saida, "Localidade %s não existe na database\n", local);
+    } else {
+        LDC* lista = localAtual->consultas;
 
+        lista = remove_redundancia_termos(lista);
+        lista = sortFreqLDC(lista);
+        lista = sortSubTermos(lista);
+
+        LDC *aux = lista;
+        printf("Armazenando daods no arquivo de saída\n");
+        do {
+            //printf("[%d]%s\n", aux->frequencia, aux->chave);
+            fprintf(saida, "%d %s\n", aux->frequencia, aux->chave);
+            aux = aux->next;
+        } while(aux != lista && --TExpected > 0);
+    }
+}
 
 
 // OPERAÇÃO d. Listar os termos mais consultados em todo arquivo. A operação recebe como

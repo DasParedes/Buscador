@@ -43,6 +43,7 @@ Goiânia;sport clube internacional;spfc;classificacao;campeonato;2016;paysandu;h
 Maceió;libertadores;boa esporte;kaka;jogo do esporte;esporte espetacular;cruzeiro
 Recife;esporte classe a;brasileirão;ronaldinho gaúcho o bruxo;2018;2016;grêmio futebol porto alegrence;ao vivo;ale oliveira;fanaticos;rodada do brasileirão;fox esporte;esporte net vip;internacional;boa esporte;corinthians;hang loose do bruxo;classificação do brasileirão;alterosa esporte;tabela do brasileirão
 Natal;libertadores
+Salvador;Árvores
 Florianópolis;esporte espetacular;tabela;campeonato;paris saint-germain football club;barcelona x chelsea;grêmio futebol porto alegrence;copa do mundo;barcelona;globo esporte
 Aracaju;campeonato;neymar;globo esporte;fox esporte;hang loose do bruxo;esporte classe a;pes;cruzeiro;2016;tabela;tabela;kaka;mercado da bola;classificacao;barcelona
 Maceió;2017;jogo do esporte;spfc;real madrid x psg;band esporte;fox esporte;paulistao;internacional;d`alessandro;grêmio;brasileirão;corinthians;tabela do brasileirão;mercado da bola;fifa

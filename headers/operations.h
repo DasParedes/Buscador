@@ -9,4 +9,6 @@ void operacaoA (AVL* localidades, FILE* saida, char nome[], int TExpected);
 
 void operacaoB (LDC *consultas, FILE *saida, int TExpected);
 
+void operacaoC (AVL *localidades, FILE *saida, char *local, int TExpected);
+
 #endif // OPERATIONS_H

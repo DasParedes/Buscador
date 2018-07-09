@@ -40,8 +40,11 @@ LDC *sortSubLDC(LDC* list);
 // Se a primeira for maior, retorna +1
 int ldc_cmp(LDC *nodeA, LDC *nodeB);
 
-// Percorre a LDC, aglutinando consultas iguais e aumentando a frequencia.
+// Percorre a LDC de consultas, aglutinando consultas iguais e aumentando a frequencia.
 LDC* remove_redundancia(LDC *list);
+
+// Percorre a LDC de termos, aglutinando termos iguais e atualizando frequencia
+LDC* remove_redundancia_termos(LDC *list);
 
 // Função que procura um termo na lista
 LDC* searchLDC(LDC* list, char chave[]);

@@ -18,7 +18,8 @@ char *strParse(char *str);
 
 int main(int argc, char *argv[]){
 	// Arvore de Localidades
-	AVL *localidades = NULL;
+	AVL *localidades = NULL; // para consultas
+	AVL *locais_termos = NULL; // para termos
 
 	// LDC - lista de consultas mais realizadas no arquivo
 	LDC *consultas_arquivo = NULL;
@@ -94,15 +95,26 @@ int main(int argc, char *argv[]){
 			// Busca o ponteiro inserido na Arvore
 			localAtual = searchAVL(localidades, strLocal);
 
+			// Insere uma nova localidade na árvore de locais dos termos
+			locais_termos = insertAVL(locais_termos, strLocal, &isBalanced);
+
+			// devolve a cidade
+			AVL *local_termo = searchAVL(locais_termos, strLocal);
+
 			// Enquanto não houver mais termos a serem lidos
 			while(strTermo != NULL){
 				// Simplifica o termo atual
 				strParse(strTermo);
 				// Adiciona o termos numa Lista de Termos auxiliar
 				consultaAtual = insertFirstLDC(consultaAtual, strTermo, 1, NULL);
+
+				// Insere o termo na lista global de termos de uma cidade
+				local_termo->consultas = insertFirstLDC(local_termo->consultas, strTermo, 1, NULL);
+
 				// Le outro termo
 				strTermo = strtok(NULL, ";");
 			}
+
 			// Ordena essa Lista por Ordem ALfabetica para facilitar as operações
 			consultaAtual = sortAlfLDC(consultaAtual);
 			// Salva essa nova consulta na localidade atual
@@ -157,9 +169,10 @@ int main(int argc, char *argv[]){
 					printf("B[%d, %s]\n", atoi(parameter1), parameter2);
 					operacaoB(consultas_arquivo, file_saida, atoi(parameter1));
 				 	break;
-				// case 'c':
-				// 	operacaoC();
-				// 	break;
+				case 'c':
+					printf("C[%s, %s, %s]\n", strFunction, parameter1, parameter2);
+				 	operacaoC(locais_termos, file_saida, parameter1, atoi(parameter2));
+				 	break;
 				// case 'd':
 				// 	operacaoD();
 				// 	break;

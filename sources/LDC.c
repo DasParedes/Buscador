@@ -138,6 +138,40 @@ LDC* sortSubLDC(LDC *list){
     return list;
 }
 
+
+LDC *sortSubTermos(LDC *inicio){
+    LDC *aux = inicio;
+
+    while( aux->next != inicio){
+        LDC *prox = aux->next;
+
+        if (aux->frequencia == aux->next->frequencia
+        && strcmp(aux->chave, aux->next->chave) >= 1){
+
+            aux->next = prox->next;
+            prox->prev = aux->prev;
+
+            aux->prev->next = prox;
+            prox->next->prev = aux;
+
+            aux->prev = prox;
+            prox->next = aux;
+
+            aux = prox;
+        }
+        aux = aux->next;
+    } 
+
+    while(inicio->prev->frequencia > inicio->frequencia){
+        inicio = inicio->prev;
+    }
+    while(inicio->prev->frequencia == inicio->frequencia && strcmp(inicio->prev->chave, inicio->chave) >= 1){
+        inicio = inicio->prev;
+    }
+    return inicio;
+}
+
+
 // Compara a primeira lista circular com a segunda:
 // Se forem iguais, retorna 0
 // Se a primeira for menor, retorna -1
@@ -213,6 +247,34 @@ LDC* remove_redundancia(LDC *list){
     return actual;
 }
 
+
+LDC* remove_redundancia_termos(LDC *inicio){
+    LDC *atual = inicio, *prox=atual->next, *prev = atual->prev;
+
+    if (atual == atual->next){
+        return atual;
+    }
+
+    do {
+        LDC *aux = atual->next;
+        while(aux != inicio){
+            if(strcmp(atual->chave, aux->chave) == 0){
+                (atual->frequencia)++;
+
+                aux->prev->next = aux->next;
+                aux->next->prev = aux->prev;
+
+                prev = aux->prev;
+                free(aux);
+                aux = prev;
+            }
+            aux = aux->next;
+        }
+        atual = atual->next;
+    } while(atual != inicio);
+
+    return atual;
+}
 
 LDC* searchLDC(LDC* list, char chave[]){
     LDC *actual;
