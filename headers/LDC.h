@@ -52,6 +52,10 @@ LDC* searchLDC(LDC* list, char chave[]);
 // Função que compara duas listas e retorna 1 caso sejam iguais
 int isEqualLDC(LDC* list1, LDC* list2);
 
+// Imprime todos os itens da lista
 void show_all(LDC* list);
+
+// Retorna o tamanho da lista
+int lengthLDC(LDC* list);
 
 #endif // LDC_H

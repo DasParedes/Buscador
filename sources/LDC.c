@@ -160,7 +160,7 @@ LDC *sortSubTermos(LDC *inicio){
             aux = prox;
         }
         aux = aux->next;
-    } 
+    }
 
     while(inicio->prev->frequencia > inicio->frequencia){
         inicio = inicio->prev;
@@ -332,4 +332,17 @@ void show_all(LDC* list)
         printf("%s;", aux->chave);
         aux = aux->next;
     }while(aux != list);
+}
+
+int lengthLDC(LDC* list)
+{
+    int length = 0;
+    if(list != NULL){
+        LDC* aux = list;
+        do{
+            aux = aux->next;
+            length++;
+        }while(aux != list);
+    }
+    return length;
 }

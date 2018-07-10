@@ -84,7 +84,7 @@ int main(int argc, char *argv[]){
 		strLocal = strtok(buffer, ";");
 		strTermo = strtok(NULL, ";");
 
-		if(strTermo != NULL){
+		if(strLocal != NULL && strTermo != NULL){
 			// Simplificamos o nome da localidade
 			printf("Parsing string\n");
 			strParse(strLocal);
@@ -153,7 +153,7 @@ int main(int argc, char *argv[]){
 
 		printf("%s - %s - %s\n", strFunction, parameter1, parameter2);
 
-		if(!(parameter1 == NULL && parameter2 == NULL)){
+		if(strFunction != NULL && !feof(file_operacoes)){
             printf("Executing operation '%c'\n", toupper(strFunction[0]));
 
 			// Simplificamos os parametros
@@ -176,14 +176,14 @@ int main(int argc, char *argv[]){
 				// case 'd':
 				// 	operacaoD();
 				// 	break;
-				// case 'e':
-				// 	operacaoE();
-				// 	break;
-				// case 'f':
-				// 	operacaoF();
-				// 	break;
+				case 'e':
+					operacaoE(localidades, file_saida, parameter1);
+					break;
+				case 'f':
+					operacaoF(consultas_arquivo, file_saida);
+					break;
 				default:
-				printf("Arquivo mal-formatado!");
+					printf("Arquivo mal-formatado!");
 				return -5;
 			}
 		}

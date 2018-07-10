@@ -105,7 +105,7 @@ void printDotsReallyRB (AVL* arvore, int nivel){
             printf("----");
 
         nivel++;
-		printf("%s\n", arvore->chave);
+        printf("%s\n", arvore->chave);
 
         printDotsReallyRB (arvore->left, nivel);
         printDotsReallyRB (arvore->right, nivel);

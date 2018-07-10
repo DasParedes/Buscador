@@ -1,10 +1,6 @@
-5 copa do mundo;russia
 2 abp;arvores;avl;estruturas de dados;rubro-negras
-2 arvores;estruturas de dados
-2 arvores
-2 copa do mundo
 1 copa do mundo;fifa;russia
-1 barcelona;classificacao;esporte classe a;esporte espetacular;esporte interativo;hang loose do bruxo;rússia;tabela;tabela do brasileirao
-1 2017;barcelona x chelsea;boa esporte;brasileirao;campeonato;copa sao de futebol junior;corinthians;hoje;messi;mundial de clubes;paris saint-germain football club;paulistao;tabela do brasileirao;tabela do brasileirao
-1 2016;boleiro;copa do mundo;corinthians;cristiano ronaldo;d`alessandro;fanaticos;flamengo;fox esporte;jogo de esporte;neymar;rodada do brasileirao;serie a;tabela do brasileirao
-1 band esporte;brasileirao;brasileirao;copa sao d futebol junnior;corinthians;cristiano ronaldo;esporte espetacular;flamengo;grêmio futebol porto alegrence;jogo do esporte;messi;mundial de clubes;rússia;tabela do brasileirao
+1 passagens aereas;russia
+1 esporte interativo;ronaldinho gaúcho o bruxo;tabela
+5 média da quantidade de termos das consultas em 'porto alegre'
+8 média da quantidade de termos das consultas do arquivo
